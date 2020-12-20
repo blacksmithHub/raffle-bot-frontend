@@ -94,17 +94,35 @@
               </v-col>
             </v-row>
 
-            <v-text-field
-              v-model="url"
-              label="URL"
-              required
-              outlined
-              dense
-              autocomplete="off"
-              :error-messages="urlErrors"
-              clearable
-              @blur="$v.url.$touch()"
-            />
+            <v-row>
+              <v-col class="pt-0 pb-0">
+                <v-text-field
+                  v-model="url"
+                  label="URL"
+                  required
+                  outlined
+                  dense
+                  autocomplete="off"
+                  :error-messages="urlErrors"
+                  clearable
+                  @blur="$v.url.$touch()"
+                />
+              </v-col>
+
+              <v-col class="pt-0 pb-0">
+                <v-text-field
+                  v-model="delays"
+                  type="number"
+                  label="Delays"
+                  required
+                  outlined
+                  dense
+                  autocomplete="off"
+                  clearable
+                  @change="onDelaysChange"
+                />
+              </v-col>
+            </v-row>
 
             <div v-if="Object.keys(store).length">
               <Titan22
@@ -157,7 +175,8 @@ export default {
       profile: {},
       account: {},
       url: '',
-      mode: 'new'
+      mode: 'new',
+      delays: 3200
     }
   },
   computed: {
@@ -232,6 +251,7 @@ export default {
       this.account = item.account
       this.url = item.url
       this.mode = 'edit'
+      this.delays = item.delays
       this.dialog = true
     },
     /**
@@ -251,7 +271,7 @@ export default {
           profile: this.profile,
           account: this.account,
           success: 0,
-          delays: 3200,
+          delays: this.delays,
           status: {
             id: 1,
             msg: 'stopped',
@@ -266,28 +286,35 @@ export default {
           params.id = this.id
           this.updateTask(params)
         }
+
+        this.onClose()
       }
     },
     /**
      * on close dialog event
      */
     onClose () {
+      this.reset()
+      this.dialog = false
+    },
+    /**
+     * reset all fields
+     */
+    reset () {
       this.$v.$reset()
       this.id = null
-      this.store = {}
       this.store = {}
       this.proxy = {}
       this.profile = {}
       this.account = {}
       this.url = ''
       this.mode = 'new'
+      this.delays = 3200
 
       if (this.$refs.titan22) {
         this.$refs.titan22.$v.$reset()
         this.$refs.titan22.sequence = []
       }
-
-      this.dialog = false
     },
     /**
      * on store field change event
@@ -312,6 +339,12 @@ export default {
      */
     onAccountChange () {
       if (!this.account) this.account = {}
+    },
+    /**
+     * on delays field change event
+     */
+    onDelaysChange () {
+      if (!this.delays) this.delays = 3200
     }
   },
   validations: {

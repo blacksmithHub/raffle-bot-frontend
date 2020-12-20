@@ -81,7 +81,7 @@ export default {
     ...mapState('profile', { profiles: 'items' })
   },
   methods: {
-    ...mapActions('profile', { updateProfile: 'updateItem', deleteProfile: 'deleteItem', reset: 'reset' }),
+    ...mapActions('profile', { deleteProfile: 'deleteItem', reset: 'reset' }),
     /**
      * return gender
      */

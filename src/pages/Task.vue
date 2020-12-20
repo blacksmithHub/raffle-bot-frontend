@@ -149,17 +149,6 @@
                       v-text="'mdi-delete'"
                     />
                   </v-btn>
-
-                  <v-btn
-                    fab
-                    x-small
-                    class="primary"
-                  >
-                    <v-icon
-                      small
-                      v-text="'mdi-dots-vertical'"
-                    />
-                  </v-btn>
                 </template>
               </v-data-table>
             </v-card-text>
@@ -193,7 +182,8 @@ export default {
     }
   },
   computed: {
-    ...mapState('task', { tasks: 'items' })
+    ...mapState('task', { tasks: 'items' }),
+    ...mapState('account', { accounts: 'items' })
   },
   methods: {
     ...mapActions('task', { updateTask: 'updateItem', deleteTask: 'deleteItem', reset: 'reset' }),
@@ -202,7 +192,7 @@ export default {
      */
     getEntries (item) {
       try {
-        return this.accounts.find((element) => element.id === item.id).length
+        return this.accounts.find((element) => element.id === item.id).accounts.length
       } catch (error) {
         return 0
       }

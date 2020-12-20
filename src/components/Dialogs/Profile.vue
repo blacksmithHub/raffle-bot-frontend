@@ -36,66 +36,6 @@
 
             <v-row>
               <v-col class="pt-0 pb-0">
-                <v-text-field
-                  v-model="firstName"
-                  label="First Name"
-                  required
-                  outlined
-                  dense
-                  autocomplete="off"
-                  :error-messages="firstNameErrors"
-                  clearable
-                  @blur="$v.firstName.$touch()"
-                />
-              </v-col>
-
-              <v-col class="pt-0 pb-0">
-                <v-text-field
-                  v-model="lastName"
-                  label="Last Name"
-                  required
-                  outlined
-                  dense
-                  autocomplete="off"
-                  :error-messages="lastNameErrors"
-                  clearable
-                  @blur="$v.lastName.$touch()"
-                />
-              </v-col>
-            </v-row>
-
-            <v-row>
-              <v-col class="pt-0 pb-0">
-                <v-text-field
-                  v-model="email"
-                  label="Email"
-                  required
-                  outlined
-                  dense
-                  autocomplete="off"
-                  :error-messages="emailErrors"
-                  clearable
-                  @blur="$v.email.$touch()"
-                />
-              </v-col>
-
-              <v-col class="pt-0 pb-0">
-                <v-text-field
-                  v-model="number"
-                  label="Phone Number"
-                  required
-                  outlined
-                  dense
-                  autocomplete="off"
-                  :error-messages="numberErrors"
-                  clearable
-                  @blur="$v.number.$touch()"
-                />
-              </v-col>
-            </v-row>
-
-            <v-row>
-              <v-col class="pt-0 pb-0">
                 <v-autocomplete
                   v-model="country"
                   required
@@ -231,7 +171,7 @@
 
 <script>
 import { mapState, mapActions } from 'vuex'
-import { required, email, maxLength, minLength } from 'vuelidate/lib/validators'
+import { required, maxLength, minLength } from 'vuelidate/lib/validators'
 import Constant from '@/config/constant'
 
 export default {
@@ -241,11 +181,7 @@ export default {
       dialog: false,
       name: '',
       mode: 'new',
-      email: '',
-      firstName: '',
-      lastName: '',
       gender: Constant.PROFILE.GENDER.MALE,
-      number: '',
       country: {},
       region: {},
       city: {},
@@ -269,61 +205,6 @@ export default {
      */
     allRegions () {
       return (Object.keys(this.country).length) ? this.regions.filter((val) => val.country_id === this.country.id) : []
-    },
-    /**
-     * Error messages for email.
-     *
-     */
-    emailErrors () {
-      const errors = []
-
-      if (!this.$v.email.$dirty) return errors
-
-      this.$v.email.required || errors.push('Required')
-      this.$v.email.email || errors.push('Invalid email')
-
-      return errors
-    },
-    /**
-     * Error messages for firstName.
-     *
-     */
-    firstNameErrors () {
-      const errors = []
-
-      if (!this.$v.firstName.$dirty) return errors
-
-      this.$v.firstName.required || errors.push('Required')
-
-      return errors
-    },
-    /**
-     * Error messages for lastName.
-     *
-     */
-    lastNameErrors () {
-      const errors = []
-
-      if (!this.$v.lastName.$dirty) return errors
-
-      this.$v.lastName.required || errors.push('Required')
-
-      return errors
-    },
-    /**
-     * Error messages for number.
-     *
-     */
-    numberErrors () {
-      const errors = []
-
-      if (!this.$v.number.$dirty) return errors
-
-      this.$v.number.required || errors.push('Required')
-      this.$v.number.maxLength || errors.push('Accepts only 11 digits')
-      this.$v.number.minLength || errors.push('Accepts only 11 digits')
-
-      return errors
     },
     /**
      * Error messages for zipCode.
@@ -402,11 +283,7 @@ export default {
       this.id = item.id
       this.mode = 'edit'
       this.name = item.name
-      this.email = item.email
-      this.firstName = item.firstName
-      this.lastName = item.lastName
       this.gender = item.gender
-      this.number = item.number
       this.country = item.country
       this.region = item.region
       this.city = item.city
@@ -423,17 +300,13 @@ export default {
 
       if (!this.$v.$invalid) {
         const params = {
-          name: this.name,
-          firstName: this.firstName,
-          lastName: this.lastName,
-          email: this.email,
+          name: (this.name) ? this.name.trim() : '',
           gender: this.gender,
-          number: this.number,
           country: this.country,
           region: this.region,
           city: this.city,
-          address1: this.address1,
-          address2: this.address2,
+          address1: this.address1.trim(),
+          address2: (this.address2) ? this.address2.trim() : '',
           zipCode: this.zipCode
         }
 
@@ -451,25 +324,26 @@ export default {
      * on close dialog event
      */
     onClose () {
+      this.reset()
+
+      this.dialog = false
+    },
+    /**
+     * reset all fields
+     */
+    reset () {
       this.$v.$reset()
 
       this.id = null
       this.mode = 'new'
       this.name = ''
-      this.email = ''
-      this.firstName = ''
-      this.lastName = ''
       this.gender = Constant.PROFILE.GENDER.MALE
-      this.number = ''
       this.country = {}
       this.region = {}
       this.city = {}
       this.address1 = ''
       this.address2 = ''
       this.zipCode = ''
-      this.dialog = true
-
-      this.dialog = false
     },
     /**
      * on country field change event
@@ -491,10 +365,6 @@ export default {
     }
   },
   validations: {
-    email: { required, email },
-    firstName: { required },
-    lastName: { required },
-    number: { required, maxLength: maxLength(11), minLength: minLength(11) },
     zipCode: { required, maxLength: maxLength(4), minLength: minLength(4) },
     country: { required },
     city: { required },

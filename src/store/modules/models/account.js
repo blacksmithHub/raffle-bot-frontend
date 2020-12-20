@@ -81,12 +81,7 @@ export default {
       accounts.push({
         id: lastItemId,
         ...item,
-        name: item.name || `Proxy ${lastItemId}`,
-        status: {
-          id: 1,
-          msg: 'stopped',
-          class: 'grey'
-        }
+        name: item.name || `Account ${lastItemId}`
       })
 
       commit('SET_ITEMS', accounts)
@@ -103,7 +98,7 @@ export default {
 
       const index = accounts.indexOf(accounts.find((element) => element.id === params.id))
 
-      accounts[index].status = params.status
+      accounts[index] = params
 
       commit('SET_ITEMS', accounts)
       localStorage.setItem('accounts', JSON.stringify(accounts))
