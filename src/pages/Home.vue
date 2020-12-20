@@ -5,6 +5,12 @@
       app
       flat
     >
+      <v-img
+        :src="require('@/assets/icon.png')"
+        contain
+        width="45"
+      />
+
       <v-tabs
         centered
         class="ml-n9"
@@ -18,23 +24,29 @@
         </v-tab>
       </v-tabs>
 
-      <v-avatar
-        color="grey darken-1 shrink"
-        size="32"
-      />
+      <v-avatar size="32">
+        <v-img
+          :src="require('@/assets/placeholder.png')"
+          contain
+          width="45"
+        />
+      </v-avatar>
     </v-app-bar>
 
     <v-main>
       <router-view />
     </v-main>
+
+    <Footer />
   </v-app>
 </template>
 
 <script>
 import SystemBar from '@/components/App/SystemBar'
+import Footer from '@/components/App/Footer'
 
 export default {
-  components: { SystemBar },
+  components: { SystemBar, Footer },
   data () {
     return {
       tabs: [
@@ -45,6 +57,10 @@ export default {
         {
           name: 'Profiles',
           route: '/profiles'
+        },
+        {
+          name: 'Accounts',
+          route: '/accounts'
         },
         {
           name: 'Proxies',

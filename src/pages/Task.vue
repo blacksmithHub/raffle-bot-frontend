@@ -18,21 +18,78 @@
           <v-card>
             <v-card-title>
               <v-btn
-                fab
+                rounded
                 class="primary"
-                x-small
+                small
                 @click="addTask"
               >
-                <v-icon v-text="'mdi-plus'" />
+                <v-icon
+                  left
+                  v-text="'mdi-plus'"
+                />
+                add task
+              </v-btn>
+
+              <v-spacer />
+
+              <v-btn
+                class="mr-4 success"
+                small
+                rounded
+                @click="startAll"
+              >
+                <v-icon
+                  left
+                  v-text="'mdi-play'"
+                />
+                start all
+              </v-btn>
+
+              <v-btn
+                class="mr-4 warning"
+                rounded
+                small
+                @click="stopAll"
+              >
+                <v-icon
+                  left
+                  v-text="'mdi-stop'"
+                />
+                stop all
+              </v-btn>
+
+              <v-btn
+                class="error"
+                rounded
+                small
+                @click="reset"
+              >
+                <v-icon
+                  left
+                  v-text="'mdi-delete'"
+                />
+                delete all
               </v-btn>
             </v-card-title>
 
-            <v-card-text>
+            <v-card-text style="max-height: 60vh; overflow: auto">
               <v-data-table
                 :headers="headers"
                 :items="tasks"
                 hide-default-footer
               >
+                <template v-slot:item.store="{ item }">
+                  <span>{{ item.store.name }}</span>
+                </template>
+
+                <template v-slot:item.entries="{ item }">
+                  <span>{{ item.success }} / {{ getEntries(item) }}</span>
+                </template>
+
+                <template v-slot:item.delays="{ item }">
+                  <span>{{ item.delays }}ms</span>
+                </template>
+
                 <template v-slot:item.status="{ item }">
                   <v-chip
                     :color="item.status.class"
@@ -41,6 +98,7 @@
                     v-text="item.status.msg"
                   />
                 </template>
+
                 <template v-slot:item.actions="{ item }">
                   <v-btn
                     v-if="item.status.id === 1"
@@ -110,64 +168,6 @@
       </v-row>
     </v-container>
 
-    <v-footer
-      app
-      padless
-      class="transparent"
-    >
-      <v-card
-        class="flex transparent"
-        flat
-        tile
-      >
-        <v-card-title class="pa-0">
-          <v-row
-            justify="center"
-            align="center"
-          >
-            <v-col
-              align-self="center"
-              cols="auto"
-              class="text-center"
-            >
-              <v-sheet class="pa-2 all-actions">
-                <v-btn
-                  class="mx-4 success"
-                  fab
-                  x-small
-                  @click="startAll"
-                >
-                  <v-icon v-text="'mdi-play'" />
-                </v-btn>
-
-                <v-btn
-                  class="mx-4 warning"
-                  fab
-                  x-small
-                  @click="stopAll"
-                >
-                  <v-icon v-text="'mdi-stop'" />
-                </v-btn>
-
-                <v-btn
-                  class="mx-4 error"
-                  fab
-                  x-small
-                  @click="reset"
-                >
-                  <v-icon v-text="'mdi-delete'" />
-                </v-btn>
-              </v-sheet>
-            </v-col>
-          </v-row>
-        </v-card-title>
-
-        <v-card-text class="py-2 text-center">
-          <small>{{ new Date().getFullYear() }} — <strong>Talos</strong></small>
-        </v-card-text>
-      </v-card>
-    </v-footer>
-
     <TaskDialog ref="taskDialog" />
   </div>
 </template>
@@ -176,14 +176,14 @@
 import { mapState, mapActions } from 'vuex'
 
 import Constant from '@/config/constant'
-import TaskDialog from '@/components/Task/TaskDialog'
+import TaskDialog from '@/components/Dialogs/Task'
 
 export default {
   components: { TaskDialog },
   data () {
     return {
       headers: [
-        { text: 'Site', value: 'site' },
+        { text: 'Store', value: 'store' },
         { text: 'Entries', value: 'entries', align: 'center' },
         { text: 'Delays', value: 'delays', align: 'center' },
         { text: 'Elapse', value: 'elapse', align: 'center' },
@@ -198,17 +198,27 @@ export default {
   methods: {
     ...mapActions('task', { updateTask: 'updateItem', deleteTask: 'deleteItem', reset: 'reset' }),
     /**
+     * return total entries
+     */
+    getEntries (item) {
+      try {
+        return this.accounts.find((element) => element.id === item.id).length
+      } catch (error) {
+        return 0
+      }
+    },
+    /**
      * add task event
      */
     addTask () {
-      this.$refs.taskDialog.model = true
+      this.$refs.taskDialog.dialog = true
     },
     /**
      * on start task event
      */
     startTask (item) {
       this.updateTask({
-        task: item,
+        ...item,
         status: {
           id: Constant.TASK.STATUS.RUNNING,
           msg: 'running',
@@ -221,7 +231,7 @@ export default {
      */
     stopTask (item) {
       this.updateTask({
-        task: item,
+        ...item,
         status: {
           id: Constant.TASK.STATUS.STOPPED,
           msg: 'stopped',
@@ -254,9 +264,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-.all-actions {
-  border-radius: 100px !important
-}
-</style>

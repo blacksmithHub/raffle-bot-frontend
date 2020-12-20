@@ -2,8 +2,8 @@ export default {
   namespaced: true,
   state () {
     return {
-      items: localStorage.getItem('tasks')
-        ? JSON.parse(localStorage.getItem('tasks'))
+      items: localStorage.getItem('accounts')
+        ? JSON.parse(localStorage.getItem('accounts'))
         : []
     }
   },
@@ -47,7 +47,7 @@ export default {
      */
     reset ({ commit }) {
       commit('RESET')
-      if (localStorage.getItem('tasks')) localStorage.removeItem('tasks')
+      if (localStorage.getItem('accounts')) localStorage.removeItem('accounts')
     },
 
     /**
@@ -58,7 +58,7 @@ export default {
      */
     setItems ({ commit }, items) {
       commit('SET_ITEMS', items)
-      localStorage.setItem('tasks', JSON.stringify(items))
+      localStorage.setItem('accounts', JSON.stringify(items))
     },
 
     /**
@@ -68,9 +68,9 @@ export default {
      * @param {*} item
      */
     addItem ({ state, commit }, item) {
-      const tasks = state.items.slice()
+      const accounts = state.items.slice()
 
-      let lastItemId = tasks[tasks.length - 1]
+      let lastItemId = accounts[accounts.length - 1]
 
       if (lastItemId) {
         lastItemId = lastItemId.id + 1
@@ -78,9 +78,10 @@ export default {
         lastItemId = 1
       }
 
-      tasks.push({
+      accounts.push({
         id: lastItemId,
         ...item,
+        name: item.name || `Proxy ${lastItemId}`,
         status: {
           id: 1,
           msg: 'stopped',
@@ -88,8 +89,8 @@ export default {
         }
       })
 
-      commit('SET_ITEMS', tasks)
-      localStorage.setItem('tasks', JSON.stringify(tasks))
+      commit('SET_ITEMS', accounts)
+      localStorage.setItem('accounts', JSON.stringify(accounts))
     },
 
     /**
@@ -98,14 +99,14 @@ export default {
      * @param {*} param
      */
     updateItem ({ state, commit }, params) {
-      const tasks = state.items.slice()
+      const accounts = state.items.slice()
 
-      const index = tasks.indexOf(tasks.find((element) => element.id === params.id))
+      const index = accounts.indexOf(accounts.find((element) => element.id === params.id))
 
-      tasks[index] = params
+      accounts[index].status = params.status
 
-      commit('SET_ITEMS', tasks)
-      localStorage.setItem('tasks', JSON.stringify(tasks))
+      commit('SET_ITEMS', accounts)
+      localStorage.setItem('accounts', JSON.stringify(accounts))
     },
 
     /**
@@ -115,12 +116,12 @@ export default {
      * @param {*} key
      */
     deleteItem ({ state, commit }, params) {
-      const tasks = state.items.slice()
+      const accounts = state.items.slice()
 
-      const index = tasks.find((element) => element.id === params.id)
+      const index = accounts.find((element) => element.id === params.id)
 
       commit('DELETE_ITEM', index)
-      localStorage.setItem('tasks', JSON.stringify(state.items))
+      localStorage.setItem('accounts', JSON.stringify(state.items))
     }
   }
 }

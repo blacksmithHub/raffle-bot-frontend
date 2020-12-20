@@ -3,6 +3,7 @@ const Home = () => import('../pages/Home')
 const Task = () => import('../pages/Task')
 const Profiles = () => import('../pages/Profiles')
 const Proxies = () => import('../pages/Proxies')
+const Accounts = () => import('../pages/Accounts')
 const Settings = () => import('../pages/Settings')
 
 /**
@@ -32,6 +33,11 @@ export default {
           path: '/profiles',
           name: 'Profiles',
           component: Profiles
+        },
+        {
+          path: '/accounts',
+          name: 'Accounts',
+          component: Accounts
         },
         {
           path: '/proxies',
