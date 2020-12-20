@@ -163,6 +163,7 @@
 
 <script>
 import { mapState, mapActions } from 'vuex'
+import { ipcRenderer } from 'electron'
 
 import Constant from '@/config/constant'
 import TaskDialog from '@/components/Dialogs/Task'
@@ -215,6 +216,8 @@ export default {
           class: 'warning'
         }
       })
+
+      ipcRenderer.send('automate', JSON.stringify(item))
     },
     /**
      * on stop task event
