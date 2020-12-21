@@ -62,7 +62,7 @@
                 class="error"
                 rounded
                 small
-                @click="reset"
+                @click="removeAll"
               >
                 <v-icon
                   left
@@ -83,7 +83,7 @@
                 </template>
 
                 <template v-slot:item.entries="{ item }">
-                  <span>{{ item.success }} / {{ getEntries(item) }}</span>
+                  <span>{{ item.success }} / {{ item.account.accounts.length }}</span>
                 </template>
 
                 <template v-slot:item.delays="{ item }">
@@ -142,7 +142,7 @@
                     fab
                     x-small
                     class="mr-2 error"
-                    @click="deleteTask(item)"
+                    @click="removeTask(item)"
                   >
                     <v-icon
                       small
@@ -186,18 +186,22 @@ export default {
     ...mapState('task', { tasks: 'items' }),
     ...mapState('account', { accounts: 'items' })
   },
+  beforeRouteEnter (to, from, next) {
+    next(vm => {
+      vm.tasks.forEach(element => {
+        vm.updateTask({
+          ...element,
+          status: {
+            id: Constant.TASK.STATUS.STOPPED,
+            msg: 'stopped',
+            class: 'grey'
+          }
+        })
+      })
+    })
+  },
   methods: {
     ...mapActions('task', { updateTask: 'updateItem', deleteTask: 'deleteItem', reset: 'reset' }),
-    /**
-     * return total entries
-     */
-    getEntries (item) {
-      try {
-        return this.accounts.find((element) => element.id === item.id).accounts.length
-      } catch (error) {
-        return 0
-      }
-    },
     /**
      * add task event
      */
@@ -208,29 +212,35 @@ export default {
      * on start task event
      */
     startTask (item) {
-      this.updateTask({
-        ...item,
-        status: {
-          id: Constant.TASK.STATUS.RUNNING,
-          msg: 'running',
-          class: 'warning'
-        }
-      })
+      if (item.status.id === Constant.TASK.STATUS.STOPPED) {
+        this.updateTask({
+          ...item,
+          status: {
+            id: Constant.TASK.STATUS.RUNNING,
+            msg: 'running',
+            class: 'warning'
+          }
+        })
 
-      ipcRenderer.send('automate', JSON.stringify(item))
+        ipcRenderer.send('automate', JSON.stringify(item))
+      }
     },
     /**
      * on stop task event
      */
     stopTask (item) {
-      this.updateTask({
-        ...item,
-        status: {
-          id: Constant.TASK.STATUS.STOPPED,
-          msg: 'stopped',
-          class: 'grey'
-        }
-      })
+      if (item.status.id === Constant.TASK.STATUS.RUNNING) {
+        this.updateTask({
+          ...item,
+          status: {
+            id: Constant.TASK.STATUS.STOPPED,
+            msg: 'stopped',
+            class: 'grey'
+          }
+        })
+
+        ipcRenderer.send('stop', JSON.stringify(item))
+      }
     },
     /**
      * on edit task event
@@ -253,6 +263,23 @@ export default {
       this.tasks.forEach(element => {
         this.stopTask(element)
       })
+    },
+    /**
+     * on remove task event
+     */
+    removeTask (item) {
+      this.stopTask(item)
+      this.deleteTask(item)
+    },
+    /**
+     * on remove all task event
+     */
+    removeAll () {
+      this.tasks.forEach((element) => {
+        this.stopTask(element)
+      })
+
+      this.reset()
     }
   }
 }

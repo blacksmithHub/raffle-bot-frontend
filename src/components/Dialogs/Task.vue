@@ -260,35 +260,48 @@ export default {
     submit () {
       this.$v.$touch()
 
-      if (this.$refs.titan22) this.$refs.titan22.$v.$touch()
+      if (!this.$v.$invalid) {
+        switch (this.store.id) {
+          case 1:
+            this.$refs.titan22.$v.$touch()
 
-      if (!this.$v.$invalid &&
-      (this.$refs.titan22 && !this.$refs.titan22.$v.$invalid)) {
-        const params = {
-          url: this.url,
-          store: this.store,
-          proxy: this.proxy,
-          profile: this.profile,
-          account: this.account,
-          success: 0,
-          delays: this.delays,
-          status: {
-            id: 1,
-            msg: 'stopped',
-            class: 'grey'
-          },
-          elapse: '00:00:00'
+            if (!this.$refs.titan22.$v.$invalid) this.save()
+            break
+
+          case 2:
+            this.save()
+            break
         }
-
-        if (this.mode === 'new') {
-          this.addTask(params)
-        } else {
-          params.id = this.id
-          this.updateTask(params)
-        }
-
-        this.onClose()
       }
+    },
+    /**
+     * save form
+     */
+    save () {
+      const params = {
+        url: this.url,
+        store: this.store,
+        proxy: this.proxy,
+        profile: this.profile,
+        account: this.account,
+        success: 0,
+        delays: this.delays,
+        status: {
+          id: 1,
+          msg: 'stopped',
+          class: 'grey'
+        },
+        elapse: '00:00:00'
+      }
+
+      if (this.mode === 'new') {
+        this.addTask(params)
+      } else {
+        params.id = this.id
+        this.updateTask(params)
+      }
+
+      this.onClose()
     },
     /**
      * on close dialog event
